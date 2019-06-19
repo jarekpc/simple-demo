@@ -2,18 +2,21 @@ node('maven') {
   stage('Build') {
     git url: "https://github.com/jarekpc/simple-demo.git"
     sh "mvn package"
-    stash name:"jar", includes:"target/*.jar"
+    stash name:"jar", includes:"target/simple-demo-0.0.4-SNAPSHOT.jar"
   }
   stage('Test') {
-    parallel(
-      "Simple Tests": {
-        sh "mvn test -Punit"
-      }
-    )
+      parallel(
+        "Simple Tests": {
+          sh "mvn verify -P simple-demo-tests"
+        },
+        "Discount Tests": {
+          sh "mvn verify -P discount-tests"
+        }
+      )
   }
   stage('Build Image') {
     unstash name:"jar"
-    sh "oc start-build simple-demo --from-file=target/*.jar --follow"
+    sh "oc start-build simple-demo --from-file=target/simple-demo-0.0.4-SNAPSHOT.jar --follow"
   }
   stage('Deploy') {
     openshiftDeploy depCfg: 'simple-demo'

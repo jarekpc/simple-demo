@@ -6,7 +6,7 @@ node('maven') {
   }
   stage('Test') {
     parallel(
-      "Cart Tests": {
+      "Simple Tests": {
         sh "mvn verify -P simple-demo-tests"
       },
       "Discount Tests": {

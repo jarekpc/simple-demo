@@ -7,10 +7,7 @@ node('maven') {
   stage('Test') {
     parallel(
       "Simple Tests": {
-        sh "mvn verify -P simple-demo-tests"
-      },
-      "Discount Tests": {
-        sh "mvn verify -P discount-tests"
+        sh "mvn test -Punit"
       }
     )
   }

@@ -11,7 +11,7 @@ public class HomeController {
 
     @GetMapping
     public String home(){
-        return "Home v4";
+        return "Home all:)";
     }
 
     @GetMapping("/{username}")

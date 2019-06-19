@@ -110,7 +110,7 @@
                             <executions>
                                 <execution>
                                     <goals>
-                                        <goal>packaging</goal>
+                                        <goal>repackage</goal>
                                     </goals>
                                     <configuration>
                                         <skip>true</skip>
@@ -131,7 +131,7 @@
                             <executions>
                                 <execution>
                                     <goals>
-                                        <goal>packaging</goal>
+                                        <goal>repackage</goal>
                                     </goals>
                                     <configuration>
                                         <skip>true</skip>

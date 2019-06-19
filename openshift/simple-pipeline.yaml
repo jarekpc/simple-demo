@@ -6,7 +6,7 @@ items:
     kind: BuildConfig
     metadata:
       annotations:
-        pipeline.alpha.openshift.io/uses: '[{"name": "cart", "namespace": "", "kind": "DeploymentConfig"}]'
+        pipeline.alpha.openshift.io/uses: '[{"name": "simple", "namespace": "", "kind": "DeploymentConfig"}]'
       name: simple-service-pipeline
     spec:
       source:

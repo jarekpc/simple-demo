@@ -16,7 +16,7 @@ node('maven') {
   }
   stage('Build Image') {
     unstash name:"jar"
-    sh "oc start-build cart --from-file=target/simple-demo-0.0.3-SNAPSHOT.jar --follow"
+    sh "oc start-build simple-demo --from-file=target/simple-demo-0.0.3-SNAPSHOT.jar --follow"
   }
   stage('Deploy') {
     openshiftDeploy depCfg: 'simple-demo'

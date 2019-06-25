@@ -45,15 +45,8 @@ pipeline {
                stage('Build Container Image'){
                  steps {
                    // Copy the resulting artifacts into common directory
-                   sh """
-                     ls target/*
-                     rm -rf oc-build && mkdir -p oc-build/deployments
-                     for t in \$(echo "jar" | tr ";" "\\n"); do
-                       cp -rfv ./target/*.\$t oc-build/deployments/ 2> /dev/null || echo "No \$t files"
-                     done
-                   """
-
-                   binaryBuild(projectName: env.BUILD, buildConfigName: env.APP_NAME, artifactsDirectoryName: "oc-build")
+                  unstash name:"jar"
+                  sh "oc start-build simple-demo --from-file=target/*.jar --follow"
                  }
                }
 

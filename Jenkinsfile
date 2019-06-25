@@ -1,4 +1,3 @@
-
 library identifier: "pipeline-library@master",
 retriever: modernSCM(
   [
@@ -23,23 +22,19 @@ pipeline {
       label 'maven'
    }
       stages {
-          stage('Build') {
-              git url: "https://github.com/jarekpc/simple-demo.git"
-              sh "mvn package"
-              stash name:"jar", includes:"target/*.jar"
-            }
-            stage('Test') {
-                  steps {
-                        sh "mvn -B test -f ${POM_FILE}"
-                      }
-            }
-            stage('Build Image') {
-              unstash name:"jar"
-              sh "oc start-build simple-demo --from-file=target/*.jar --follow"
-            }
-            stage('Deploy') {
-              openshiftDeploy depCfg: 'simple-demo'
-              openshiftVerifyDeployment depCfg: 'simple-demo', replicaCount: 1, verifyReplicaCount: true
-            }
-      }
+           stage('Git Checkout') {
+                steps {
+                  // Turn off Git's SSL cert check, uncomment if needed
+                  // sh 'git config --global http.sslVerify false'
+                   git url: "https://github.com/jarekpc/simple-demo.git", branch: "master"
+                }
+           }
+
+           stage('Build'){
+                 steps {
+                   sh "mvn -B clean install -DskipTests=true -f ${POM_FILE}"
+                 }
+           }
+     }
+
 }

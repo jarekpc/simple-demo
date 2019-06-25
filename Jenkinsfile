@@ -23,20 +23,23 @@ pipeline {
       label 'maven'
    }
       stages {
-          stage('Build') { 2
-              steps {
-                  // 3
-              }
-          }
-          stage('Test') { 4
-              steps {
-                  // 5
-              }
-          }
-          stage('Deploy') { 6
-              steps {
-                  // 7
-              }
-          }
+          stage('Build') {
+              git url: "https://github.com/jarekpc/simple-demo.git"
+              sh "mvn package"
+              stash name:"jar", includes:"target/*.jar"
+            }
+            stage('Test') {
+                  steps {
+                        sh "mvn -B test -f ${POM_FILE}"
+                      }
+            }
+            stage('Build Image') {
+              unstash name:"jar"
+              sh "oc start-build simple-demo --from-file=target/*.jar --follow"
+            }
+            stage('Deploy') {
+              openshiftDeploy depCfg: 'simple-demo'
+              openshiftVerifyDeployment depCfg: 'simple-demo', replicaCount: 1, verifyReplicaCount: true
+            }
       }
 }

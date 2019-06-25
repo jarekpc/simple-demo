@@ -57,13 +57,6 @@ pipeline {
                  }
                }
 
-               stage('Promote from Build to Dev') {
-                 steps {
-                   openshiftDeploy depCfg: 'simple-demo'
-                   openshiftVerifyDeployment depCfg: 'simple-demo', replicaCount: 1, verifyReplicaCount: true
-                 }
-               }
-
 
      }
 

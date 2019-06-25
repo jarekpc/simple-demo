@@ -27,30 +27,31 @@ pipeline {
     label 'maven'
   }
 
-  stage('Build') {
-    git url: "https://github.com/jarekpc/simple-demo.git"
-    sh "mvn package"
-    stash name:"jar", includes:"target/*.jar"
-  }
-  stage('Test') {
-       steps {
-                      sh 'mvn test'
-                  }
-                  post {
-                      always {
-                          junit 'target/surefire-reports/*.xml'
-                      }
-                  }
-  }
-  stage('Build Image') {
-    unstash name:"jar"
-    sh "oc start-build simple-demo --from-file=target/*.jar --follow"
-  }
-  stage('Deploy') {
-    openshiftDeploy depCfg: 'simple-demo'
-    openshiftVerifyDeployment depCfg: 'simple-demo', replicaCount: 1, verifyReplicaCount: true
-  }
-  stage('System Test') {
-    sh "curl -s -X POST http://127.0.0.1:8080/api"
-  }
+  stages {
+      stage('Git Checkout') {
+            steps {
+              // Turn off Git's SSL cert check, uncomment if needed
+              // sh 'git config --global http.sslVerify false'
+              git url: "${APPLICATION_SOURCE_REPO}", branch: "${APPLICATION_SOURCE_REF}"
+        }
+
+      stage('Build') {
+        steps {
+                sh "mvn -B clean install -DskipTests=true -f ${POM_FILE}"
+              }
+      }
+      stage('Test') {
+           steps {
+                   sh "mvn -B test -f ${POM_FILE}"
+                 }
+      }
+      stage('Build Image') {
+        unstash name:"jar"
+        sh "oc start-build simple-demo --from-file=target/*.jar --follow"
+      }
+      stage('Deploy') {
+        openshiftDeploy depCfg: 'simple-demo'
+        openshiftVerifyDeployment depCfg: 'simple-demo', replicaCount: 1, verifyReplicaCount: true
+      }
+   }
 }

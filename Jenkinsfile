@@ -19,7 +19,9 @@ openshift.withCluster() {
 }
 
 pipeline {
-  agent any 1
+   agent {
+      label 'maven'
+   }
       stages {
           stage('Build') { 2
               steps {

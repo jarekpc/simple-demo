@@ -5,14 +5,14 @@ node('maven') {
     stash name:"jar", includes:"target/*.jar"
   }
   stage('Test') {
-      parallel(
-        "Simple Tests": {
-          sh "mvn verify -P simple-demo-tests"
-        },
-        "Discount Tests": {
-          sh "mvn verify -P discount-tests"
-        }
-      )
+       steps {
+                      sh 'mvn test'
+                  }
+                  post {
+                      always {
+                          junit 'target/surefire-reports/*.xml'
+                      }
+                  }
   }
   stage('Build Image') {
     unstash name:"jar"

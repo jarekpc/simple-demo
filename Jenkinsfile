@@ -24,8 +24,6 @@ pipeline {
       stages {
            stage('Git Checkout') {
                 steps {
-                  // Turn off Git's SSL cert check, uncomment if needed
-                  // sh 'git config --global http.sslVerify false'
                    git url: "https://github.com/jarekpc/simple-demo.git", branch: "master"
                 }
            }
@@ -41,7 +39,6 @@ pipeline {
                    sh "mvn -B test -f ${POM_FILE}"
                  }
                }
-
 
               stage('Build Container Image'){
                     steps {
@@ -61,7 +58,6 @@ pipeline {
                                   tagImage(sourceImageName: env.APP_NAME, sourceImagePath: env.BUILD, toImagePath: env.DEV)
                                 }
                               }
-
 
      }
 

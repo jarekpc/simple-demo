@@ -2,12 +2,12 @@
     "kind": "Template",
     "apiVersion": "v1",
     "metadata": {
-        "name": "keycloak-ailleron",
+        "name": "keycloak-ailleron1",
         "annotations": {
             "iconClass": "icon-sso",
-            "tags": "keycloak",
+            "tags": "keycloak1",
             "version": "6.0.1 ",
-            "openshift.io/display-name": "Keycloak",
+            "openshift.io/display-name": "Keycloak1",
             "description": "An example Keycloak server with HTTPS"
         }
     },
@@ -39,7 +39,7 @@
             "displayName": "DB Vendor",
             "description": "DB vendor (H2, POSTGRES, MYSQL or MARIADB)",
             "name": "DB_VENDOR",
-            "value": "POSTGRES",
+            "value": "postgres",
             "required": true
         },
         {

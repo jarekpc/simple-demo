@@ -13,8 +13,10 @@ services:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
-  keycloak:
+  keycloak_1:
     image: jboss/keycloak
+    build:
+      context: .
     environment:
       DB_VENDOR: POSTGRES
       DB_ADDR: postgres
@@ -24,9 +26,24 @@ services:
       DB_PASSWORD: password
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: Pa55w0rd
-      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
-      #JDBC_PARAMS: "ssl=true"
     ports:
       - 8080:8080
+      - 9990:9990
     depends_on:
       - postgres
+  keycloak_2:
+    image: jboss/keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: password
+    ports:
+      - 8081:8080
+      - 9991:9990
+    depends_on:
+        - keycloak_1

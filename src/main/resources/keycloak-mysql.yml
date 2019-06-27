@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3'
 
 volumes:
   mysql_data:
@@ -18,7 +18,7 @@ services:
   keycloak_1:
     image: jboss/keycloak
     build:
-      context: src/main/resources/Dockerfile
+      context: .
     environment:
       DB_VENDOR: MYSQL
       DB_ADDR: mysql
@@ -28,12 +28,9 @@ services:
       DB_PASSWORD: password
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: password
-      #KEYCLOAK_IMPORT: .\import\example-realm.json
-      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
-      #JDBC_PARAMS: "ssl=true"
     ports:
-      - 9990:9990
       - 8080:8080
+      - 9990:9990
     depends_on:
       - mysql
 
@@ -48,11 +45,8 @@ services:
       DB_PASSWORD: password
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: password
-      #KEYCLOAK_IMPORT: .\import\example-realm.json
-      # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
-      #JDBC_PARAMS: "ssl=true"
     ports:
-      - 9991:9990
       - 8081:8080
+      - 9991:9990
     depends_on:
       - keycloak_1

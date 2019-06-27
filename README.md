@@ -14,3 +14,12 @@ być ustawiony format "application/json")
 import pipeline do opernshift YAML (.simple-service-pipeline.yaml):
 
 
+Uruchomienie docker compose z keycloak i postrgres
+
+docker-compose -f keycloak-postgres.yml up -d --build
+
+docker-compose up -d --build
+
+mysql
+
+docker-compose -f keycloak-mysql.yml up -d --build

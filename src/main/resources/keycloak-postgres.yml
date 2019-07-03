@@ -13,6 +13,8 @@ services:
       POSTGRES_DB: keycloak
       POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: password
+    ports:
+      - 5432:5432
   keycloak_1:
     image: jboss/keycloak
     build:
@@ -39,7 +41,7 @@ services:
       DB_DATABASE: keycloak
       DB_USER: keycloak
       DB_SCHEMA: public
-      DB_PASSWORD: password
+      DB_PASSWORD: password2
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: password
     ports:

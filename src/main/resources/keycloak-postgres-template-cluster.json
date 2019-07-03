@@ -1,0 +1,1418 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: keycloak-postgres-cluster
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/image.dockerRepositoryCheck: 2019-07-03T11:45:50Z
+    creationTimestamp: null
+    generation: 2
+    labels:
+      app: keycloak2
+    name: keycloak2
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/generated-by: OpenShiftWebConsole
+        openshift.io/imported-from: jboss/keycloak
+      from:
+        kind: DockerImage
+        name: 172.30.1.1:5000/myproject/keycloak2:latest
+      generation: 2
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/image.dockerRepositoryCheck: 2019-07-03T12:16:48Z
+    creationTimestamp: null
+    generation: 2
+    labels:
+      app: keycloak3
+    name: keycloak3
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/generated-by: OpenShiftWebConsole
+        openshift.io/imported-from: jboss/keycloak
+      from:
+        kind: DockerImage
+        name: 172.30.1.1:5000/myproject/keycloak3:latest
+      generation: 2
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftWebConsole
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: keycloak2
+    name: keycloak2
+  spec:
+    replicas: 1
+    selector:
+      app: keycloak2
+      deploymentconfig: keycloak2
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: keycloak2
+          deploymentconfig: keycloak2
+      spec:
+        containers:
+        - env:
+          - name: DB_VENDOR
+            value: POSTGRES
+          - name: DB_ADDR
+            value: postgresql
+          - name: DB_DATABASE
+            value: keycloak-db
+          - name: DB_USER
+            value: keycloak
+          - name: DB_SCHEMA
+            value: public
+          - name: DB_PASSWORD
+            value: keycloak
+          - name: KEYCLOAK_USER
+            value: user
+          - name: KEYCLOAK_PASSWORD
+            value: password
+          - name: JGROUPS_DISCOVERY_PROTOCOL
+            value: dns.DNS_PING
+          - name: JGROUPS_DISCOVERY_PROPERTIES
+            value: first.svc.cluster.local
+          image: jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38
+          imagePullPolicy: Always
+          name: keycloak2
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - keycloak2
+        from:
+          kind: ImageStreamTag
+          name: keycloak2:latest
+          namespace: myproject
+      type: ImageChange
+    - type: ConfigChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftWebConsole
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: keycloak3
+    name: keycloak3
+  spec:
+    replicas: 1
+    selector:
+      app: keycloak3
+      deploymentconfig: keycloak3
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: keycloak3
+          deploymentconfig: keycloak3
+      spec:
+        containers:
+        - env:
+          - name: DB_VENDOR
+            value: POSTGRES
+          - name: DB_ADDR
+            value: postgresql
+          - name: DB_DATABASE
+            value: keycloak-db
+          - name: DB_SCHEMA
+            value: public
+          - name: DB_PASSWORD
+            value: keycloak
+          - name: KEYCLOAK_USER
+            value: user
+          - name: KEYCLOAK_PASSWORD
+            value: password2
+          - name: JGROUPS_DISCOVERY_PROTOCOL
+            value: dns.DNS_PING
+          - name: JGROUPS_DISCOVERY_PROPERTIES
+            value: first.svc.cluster.local
+          - name: DB_USER
+            value: keycloak
+          image: jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38
+          imagePullPolicy: Always
+          name: keycloak3
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - keycloak3
+        from:
+          kind: ImageStreamTag
+          name: keycloak3:latest
+          namespace: myproject
+      type: ImageChange
+    - type: ConfigChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: postgresql
+    name: postgresql
+  spec:
+    replicas: 1
+    selector:
+      app: postgresql
+      deploymentconfig: postgresql
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: postgresql
+          deploymentconfig: postgresql
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_DATABASE
+            value: keycloak-db
+          - name: POSTGRESQL_PASSWORD
+            value: keycloak
+          - name: POSTGRESQL_USER
+            value: keycloak
+          image: centos/postgresql-95-centos7@sha256:d459c9bb18ec7de443fbe4dd31cff26bdc6fdc681363922e97ae2f40e64a93c1
+          imagePullPolicy: IfNotPresent
+          name: postgresql
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/pgsql/data
+            name: postgresql-volume-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: postgresql-volume-1
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - postgresql
+        from:
+          kind: ImageStreamTag
+          name: postgresql:9.5
+          namespace: openshift
+      type: ImageChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/original-replicas: "1"
+      openshift.io/deployer-pod.name: keycloak2-1-deploy
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: keycloak2
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: "1"
+      openshift.io/deployment.status-reason: image change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"keycloak2","namespace":"myproject","selfLink":"/apis/apps.openshift.io/v1/namespaces/myproject/deploymentconfigs/keycloak2","uid":"1976fe42-9d88-11e9-a1e5-00155d2f2139","resourceVersion":"1692","generation":3,"creationTimestamp":"2019-07-03T11:45:47Z","labels":{"app":"keycloak2"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["keycloak2"],"from":{"kind":"ImageStreamTag","namespace":"myproject","name":"keycloak2:latest"},"lastTriggeredImage":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38"}}],"replicas":1,"test":false,"selector":{"app":"keycloak2","deploymentconfig":"keycloak2"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"keycloak2","deploymentconfig":"keycloak2"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"containers":[{"name":"keycloak2","image":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38","ports":[{"containerPort":8080,"protocol":"TCP"}],"env":[{"name":"DB_VENDOR","value":"POSTGRES"},{"name":"DB_ADDR","value":"postgresql"},{"name":"DB_DATABASE","value":"keycloak-db"},{"name":"DB_USER","value":"keycloak"},{"name":"DB_SCHEMA","value":"public"},{"name":"DB_PASSWORD","value":"keycloak"},{"name":"KEYCLOAK_USER","value":"user"},{"name":"KEYCLOAK_PASSWORD","value":"password"}],"resources":{},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":1,"observedGeneration":2,"replicas":0,"updatedReplicas":0,"availableReplicas":0,"unavailableReplicas":0,"details":{"message":"image change","causes":[{"type":"ImageChange","imageTrigger":{"from":{"kind":"ImageStreamTag","namespace":"myproject","name":"keycloak2:latest"}}}]},"conditions":[{"type":"Available","status":"False","lastUpdateTime":"2019-07-03T11:45:47Z","lastTransitionTime":"2019-07-03T11:45:47Z","message":"Deployment config does not have minimum availability."}]}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: keycloak2
+      openshift.io/deployment-config.name: keycloak2
+    name: keycloak2-1
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: keycloak2
+      uid: 1976fe42-9d88-11e9-a1e5-00155d2f2139
+  spec:
+    replicas: 0
+    selector:
+      app: keycloak2
+      deployment: keycloak2-1
+      deploymentconfig: keycloak2
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "1"
+          openshift.io/deployment-config.name: keycloak2
+          openshift.io/deployment.name: keycloak2-1
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: keycloak2
+          deployment: keycloak2-1
+          deploymentconfig: keycloak2
+      spec:
+        containers:
+        - env:
+          - name: DB_VENDOR
+            value: POSTGRES
+          - name: DB_ADDR
+            value: postgresql
+          - name: DB_DATABASE
+            value: keycloak-db
+          - name: DB_USER
+            value: keycloak
+          - name: DB_SCHEMA
+            value: public
+          - name: DB_PASSWORD
+            value: keycloak
+          - name: KEYCLOAK_USER
+            value: user
+          - name: KEYCLOAK_PASSWORD
+            value: password
+          image: jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38
+          imagePullPolicy: Always
+          name: keycloak2
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.name: keycloak2-2-deploy
+      openshift.io/deployment-config.latest-version: "2"
+      openshift.io/deployment-config.name: keycloak2
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: ""
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"keycloak2","namespace":"myproject","selfLink":"/apis/apps.openshift.io/v1/namespaces/myproject/deploymentconfigs/keycloak2","uid":"1976fe42-9d88-11e9-a1e5-00155d2f2139","resourceVersion":"1988","generation":5,"creationTimestamp":"2019-07-03T11:45:47Z","labels":{"app":"keycloak2"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["keycloak2"],"from":{"kind":"ImageStreamTag","namespace":"myproject","name":"keycloak2:latest"},"lastTriggeredImage":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38"}},{"type":"ConfigChange"}],"replicas":1,"test":false,"selector":{"app":"keycloak2","deploymentconfig":"keycloak2"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"keycloak2","deploymentconfig":"keycloak2"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"containers":[{"name":"keycloak2","image":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38","ports":[{"containerPort":8080,"protocol":"TCP"}],"env":[{"name":"DB_VENDOR","value":"POSTGRES"},{"name":"DB_ADDR","value":"postgresql"},{"name":"DB_DATABASE","value":"keycloak-db"},{"name":"DB_USER","value":"keycloak"},{"name":"DB_SCHEMA","value":"public"},{"name":"DB_PASSWORD","value":"keycloak"},{"name":"KEYCLOAK_USER","value":"user"},{"name":"KEYCLOAK_PASSWORD","value":"password"},{"name":"JGROUPS_DISCOVERY_PROTOCOL","value":"dns.DNS_PING"},{"name":"JGROUPS_DISCOVERY_PROPERTIES","value":"first.svc.cluster.local"}],"resources":{},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":2,"observedGeneration":4,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"True","lastUpdateTime":"2019-07-03T11:45:55Z","lastTransitionTime":"2019-07-03T11:45:55Z","message":"Deployment config has minimum availability."},{"type":"Progressing","status":"True","lastUpdateTime":"2019-07-03T11:45:56Z","lastTransitionTime":"2019-07-03T11:45:51Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"keycloak2-1\" successfully rolled out"}],"readyReplicas":1}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: keycloak2
+      openshift.io/deployment-config.name: keycloak2
+    name: keycloak2-2
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: keycloak2
+      uid: 1976fe42-9d88-11e9-a1e5-00155d2f2139
+  spec:
+    replicas: 1
+    selector:
+      app: keycloak2
+      deployment: keycloak2-2
+      deploymentconfig: keycloak2
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "2"
+          openshift.io/deployment-config.name: keycloak2
+          openshift.io/deployment.name: keycloak2-2
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: keycloak2
+          deployment: keycloak2-2
+          deploymentconfig: keycloak2
+      spec:
+        containers:
+        - env:
+          - name: DB_VENDOR
+            value: POSTGRES
+          - name: DB_ADDR
+            value: postgresql
+          - name: DB_DATABASE
+            value: keycloak-db
+          - name: DB_USER
+            value: keycloak
+          - name: DB_SCHEMA
+            value: public
+          - name: DB_PASSWORD
+            value: keycloak
+          - name: KEYCLOAK_USER
+            value: user
+          - name: KEYCLOAK_PASSWORD
+            value: password
+          - name: JGROUPS_DISCOVERY_PROTOCOL
+            value: dns.DNS_PING
+          - name: JGROUPS_DISCOVERY_PROPERTIES
+            value: first.svc.cluster.local
+          image: jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38
+          imagePullPolicy: Always
+          name: keycloak2
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/original-replicas: "1"
+      openshift.io/deployer-pod.name: keycloak3-1-deploy
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: keycloak3
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: "1"
+      openshift.io/deployment.status-reason: image change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"keycloak3","namespace":"myproject","selfLink":"/apis/apps.openshift.io/v1/namespaces/myproject/deploymentconfigs/keycloak3","uid":"6d68388d-9d8c-11e9-a1e5-00155d2f2139","resourceVersion":"2180","generation":3,"creationTimestamp":"2019-07-03T12:16:46Z","labels":{"app":"keycloak3"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["keycloak3"],"from":{"kind":"ImageStreamTag","namespace":"myproject","name":"keycloak3:latest"},"lastTriggeredImage":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38"}}],"replicas":1,"test":false,"selector":{"app":"keycloak3","deploymentconfig":"keycloak3"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"keycloak3","deploymentconfig":"keycloak3"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"containers":[{"name":"keycloak3","image":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38","ports":[{"containerPort":8080,"protocol":"TCP"}],"env":[{"name":"DB_VENDOR","value":"POSTGRES"},{"name":"DB_ADDR","value":"postgresql"},{"name":"DB_DATABASE","value":"keycloak-db"},{"name":"DB_SCHEMA","value":"public"},{"name":"DB_PASSWORD","value":"keycloak"},{"name":"KEYCLOAK_USER","value":"user"},{"name":"KEYCLOAK_PASSWORD","value":"password2"},{"name":"JGROUPS_DISCOVERY_PROTOCOL","value":"dns.DNS_PING"},{"name":"JGROUPS_DISCOVERY_PROPERTIES","value":"first.svc.cluster.local"}],"resources":{},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":1,"observedGeneration":2,"replicas":0,"updatedReplicas":0,"availableReplicas":0,"unavailableReplicas":0,"details":{"message":"image change","causes":[{"type":"ImageChange","imageTrigger":{"from":{"kind":"ImageStreamTag","namespace":"myproject","name":"keycloak3:latest"}}}]},"conditions":[{"type":"Available","status":"False","lastUpdateTime":"2019-07-03T12:16:46Z","lastTransitionTime":"2019-07-03T12:16:46Z","message":"Deployment config does not have minimum availability."}]}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: keycloak3
+      openshift.io/deployment-config.name: keycloak3
+    name: keycloak3-1
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: keycloak3
+      uid: 6d68388d-9d8c-11e9-a1e5-00155d2f2139
+  spec:
+    replicas: 0
+    selector:
+      app: keycloak3
+      deployment: keycloak3-1
+      deploymentconfig: keycloak3
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "1"
+          openshift.io/deployment-config.name: keycloak3
+          openshift.io/deployment.name: keycloak3-1
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: keycloak3
+          deployment: keycloak3-1
+          deploymentconfig: keycloak3
+      spec:
+        containers:
+        - env:
+          - name: DB_VENDOR
+            value: POSTGRES
+          - name: DB_ADDR
+            value: postgresql
+          - name: DB_DATABASE
+            value: keycloak-db
+          - name: DB_SCHEMA
+            value: public
+          - name: DB_PASSWORD
+            value: keycloak
+          - name: KEYCLOAK_USER
+            value: user
+          - name: KEYCLOAK_PASSWORD
+            value: password2
+          - name: JGROUPS_DISCOVERY_PROTOCOL
+            value: dns.DNS_PING
+          - name: JGROUPS_DISCOVERY_PROPERTIES
+            value: first.svc.cluster.local
+          image: jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38
+          imagePullPolicy: Always
+          name: keycloak3
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/original-replicas: "1"
+      openshift.io/deployer-pod.name: keycloak3-2-deploy
+      openshift.io/deployment-config.latest-version: "2"
+      openshift.io/deployment-config.name: keycloak3
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: ""
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"keycloak3","namespace":"myproject","selfLink":"/apis/apps.openshift.io/v1/namespaces/myproject/deploymentconfigs/keycloak3","uid":"6d68388d-9d8c-11e9-a1e5-00155d2f2139","resourceVersion":"2310","generation":5,"creationTimestamp":"2019-07-03T12:16:46Z","labels":{"app":"keycloak3"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["keycloak3"],"from":{"kind":"ImageStreamTag","namespace":"myproject","name":"keycloak3:latest"},"lastTriggeredImage":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38"}},{"type":"ConfigChange"}],"replicas":1,"test":false,"selector":{"app":"keycloak3","deploymentconfig":"keycloak3"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"keycloak3","deploymentconfig":"keycloak3"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"containers":[{"name":"keycloak3","image":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38","ports":[{"containerPort":8080,"protocol":"TCP"}],"env":[{"name":"DB_VENDOR","value":"POSTGRES"},{"name":"DB_ADDR","value":"postgresql"},{"name":"DB_DATABASE","value":"keycloak-db"},{"name":"DB_SCHEMA","value":"public"},{"name":"DB_PASSWORD","value":"keycloak"},{"name":"KEYCLOAK_USER","value":"user"},{"name":"KEYCLOAK_PASSWORD","value":"password2"},{"name":"JGROUPS_DISCOVERY_PROTOCOL","value":"dns.DNS_PING"},{"name":"JGROUPS_DISCOVERY_PROPERTIES","value":"two.svc.cluster.local"}],"resources":{},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":2,"observedGeneration":4,"replicas":1,"updatedReplicas":1,"availableReplicas":0,"unavailableReplicas":1,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Progressing","status":"True","lastUpdateTime":"2019-07-03T12:16:55Z","lastTransitionTime":"2019-07-03T12:16:55Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"keycloak3-1\" successfully rolled out"},{"type":"Available","status":"False","lastUpdateTime":"2019-07-03T12:19:10Z","lastTransitionTime":"2019-07-03T12:19:10Z","message":"Deployment config does not have minimum availability."}]}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: keycloak3
+      openshift.io/deployment-config.name: keycloak3
+    name: keycloak3-2
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: keycloak3
+      uid: 6d68388d-9d8c-11e9-a1e5-00155d2f2139
+  spec:
+    replicas: 0
+    selector:
+      app: keycloak3
+      deployment: keycloak3-2
+      deploymentconfig: keycloak3
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "2"
+          openshift.io/deployment-config.name: keycloak3
+          openshift.io/deployment.name: keycloak3-2
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: keycloak3
+          deployment: keycloak3-2
+          deploymentconfig: keycloak3
+      spec:
+        containers:
+        - env:
+          - name: DB_VENDOR
+            value: POSTGRES
+          - name: DB_ADDR
+            value: postgresql
+          - name: DB_DATABASE
+            value: keycloak-db
+          - name: DB_SCHEMA
+            value: public
+          - name: DB_PASSWORD
+            value: keycloak
+          - name: KEYCLOAK_USER
+            value: user
+          - name: KEYCLOAK_PASSWORD
+            value: password2
+          - name: JGROUPS_DISCOVERY_PROTOCOL
+            value: dns.DNS_PING
+          - name: JGROUPS_DISCOVERY_PROPERTIES
+            value: two.svc.cluster.local
+          image: jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38
+          imagePullPolicy: Always
+          name: keycloak3
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/original-replicas: "1"
+      openshift.io/deployer-pod.name: keycloak3-3-deploy
+      openshift.io/deployment-config.latest-version: "3"
+      openshift.io/deployment-config.name: keycloak3
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: ""
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"keycloak3","namespace":"myproject","selfLink":"/apis/apps.openshift.io/v1/namespaces/myproject/deploymentconfigs/keycloak3","uid":"6d68388d-9d8c-11e9-a1e5-00155d2f2139","resourceVersion":"2482","generation":7,"creationTimestamp":"2019-07-03T12:16:46Z","labels":{"app":"keycloak3"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["keycloak3"],"from":{"kind":"ImageStreamTag","namespace":"myproject","name":"keycloak3:latest"},"lastTriggeredImage":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38"}},{"type":"ConfigChange"}],"replicas":1,"test":false,"selector":{"app":"keycloak3","deploymentconfig":"keycloak3"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"keycloak3","deploymentconfig":"keycloak3"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"containers":[{"name":"keycloak3","image":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38","ports":[{"containerPort":8080,"protocol":"TCP"}],"env":[{"name":"DB_VENDOR","value":"POSTGRES"},{"name":"DB_ADDR","value":"postgresql"},{"name":"DB_DATABASE","value":"keycloak-db"},{"name":"DB_SCHEMA","value":"public"},{"name":"DB_PASSWORD","value":"keycloak"},{"name":"KEYCLOAK_USER","value":"user"},{"name":"KEYCLOAK_PASSWORD","value":"password2"},{"name":"JGROUPS_DISCOVERY_PROTOCOL","value":"dns.DNS_PING"},{"name":"JGROUPS_DISCOVERY_PROPERTIES","value":"two.svc.cluster.local"},{"name":"DB_USER","value":"keycloak"}],"resources":{},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":3,"observedGeneration":6,"replicas":1,"updatedReplicas":1,"availableReplicas":0,"unavailableReplicas":1,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Progressing","status":"True","lastUpdateTime":"2019-07-03T12:20:04Z","lastTransitionTime":"2019-07-03T12:20:02Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"keycloak3-2\" successfully rolled out"},{"type":"Available","status":"False","lastUpdateTime":"2019-07-03T12:23:34Z","lastTransitionTime":"2019-07-03T12:23:34Z","message":"Deployment config does not have minimum availability."}]}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: keycloak3
+      openshift.io/deployment-config.name: keycloak3
+    name: keycloak3-3
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: keycloak3
+      uid: 6d68388d-9d8c-11e9-a1e5-00155d2f2139
+  spec:
+    replicas: 0
+    selector:
+      app: keycloak3
+      deployment: keycloak3-3
+      deploymentconfig: keycloak3
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "3"
+          openshift.io/deployment-config.name: keycloak3
+          openshift.io/deployment.name: keycloak3-3
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: keycloak3
+          deployment: keycloak3-3
+          deploymentconfig: keycloak3
+      spec:
+        containers:
+        - env:
+          - name: DB_VENDOR
+            value: POSTGRES
+          - name: DB_ADDR
+            value: postgresql
+          - name: DB_DATABASE
+            value: keycloak-db
+          - name: DB_SCHEMA
+            value: public
+          - name: DB_PASSWORD
+            value: keycloak
+          - name: KEYCLOAK_USER
+            value: user
+          - name: KEYCLOAK_PASSWORD
+            value: password2
+          - name: JGROUPS_DISCOVERY_PROTOCOL
+            value: dns.DNS_PING
+          - name: JGROUPS_DISCOVERY_PROPERTIES
+            value: two.svc.cluster.local
+          - name: DB_USER
+            value: keycloak
+          image: jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38
+          imagePullPolicy: Always
+          name: keycloak3
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      kubectl.kubernetes.io/original-replicas: "1"
+      openshift.io/deployer-pod.name: keycloak3-4-deploy
+      openshift.io/deployment-config.latest-version: "4"
+      openshift.io/deployment-config.name: keycloak3
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: ""
+      openshift.io/deployment.status-reason: config change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"keycloak3","namespace":"myproject","selfLink":"/apis/apps.openshift.io/v1/namespaces/myproject/deploymentconfigs/keycloak3","uid":"6d68388d-9d8c-11e9-a1e5-00155d2f2139","resourceVersion":"2546","generation":9,"creationTimestamp":"2019-07-03T12:16:46Z","labels":{"app":"keycloak3"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["keycloak3"],"from":{"kind":"ImageStreamTag","namespace":"myproject","name":"keycloak3:latest"},"lastTriggeredImage":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38"}},{"type":"ConfigChange"}],"replicas":1,"test":false,"selector":{"app":"keycloak3","deploymentconfig":"keycloak3"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"keycloak3","deploymentconfig":"keycloak3"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"containers":[{"name":"keycloak3","image":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38","ports":[{"containerPort":8080,"protocol":"TCP"}],"env":[{"name":"DB_VENDOR","value":"POSTGRES"},{"name":"DB_ADDR","value":"postgresql"},{"name":"DB_DATABASE","value":"keycloak-db"},{"name":"DB_SCHEMA","value":"public"},{"name":"DB_PASSWORD","value":"keycloak"},{"name":"KEYCLOAK_USER","value":"user"},{"name":"KEYCLOAK_PASSWORD","value":"password2"},{"name":"JGROUPS_DISCOVERY_PROTOCOL","value":"dns.DNS_PING"},{"name":"JGROUPS_DISCOVERY_PROPERTIES","value":"first.svc.cluster.local"},{"name":"DB_USER","value":"keycloak"}],"resources":{},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":4,"observedGeneration":8,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"config change","causes":[{"type":"ConfigChange"}]},"conditions":[{"type":"Available","status":"True","lastUpdateTime":"2019-07-03T12:24:22Z","lastTransitionTime":"2019-07-03T12:24:22Z","message":"Deployment config has minimum availability."},{"type":"Progressing","status":"True","lastUpdateTime":"2019-07-03T12:24:25Z","lastTransitionTime":"2019-07-03T12:24:23Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"keycloak3-3\" successfully rolled out"}],"readyReplicas":1}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: keycloak3
+      openshift.io/deployment-config.name: keycloak3
+    name: keycloak3-4
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: keycloak3
+      uid: 6d68388d-9d8c-11e9-a1e5-00155d2f2139
+  spec:
+    replicas: 0
+    selector:
+      app: keycloak3
+      deployment: keycloak3-4
+      deploymentconfig: keycloak3
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "4"
+          openshift.io/deployment-config.name: keycloak3
+          openshift.io/deployment.name: keycloak3-4
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: keycloak3
+          deployment: keycloak3-4
+          deploymentconfig: keycloak3
+      spec:
+        containers:
+        - env:
+          - name: DB_VENDOR
+            value: POSTGRES
+          - name: DB_ADDR
+            value: postgresql
+          - name: DB_DATABASE
+            value: keycloak-db
+          - name: DB_SCHEMA
+            value: public
+          - name: DB_PASSWORD
+            value: keycloak
+          - name: KEYCLOAK_USER
+            value: user
+          - name: KEYCLOAK_PASSWORD
+            value: password2
+          - name: JGROUPS_DISCOVERY_PROTOCOL
+            value: dns.DNS_PING
+          - name: JGROUPS_DISCOVERY_PROPERTIES
+            value: first.svc.cluster.local
+          - name: DB_USER
+            value: keycloak
+          image: jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38
+          imagePullPolicy: Always
+          name: keycloak3
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.name: keycloak3-5-deploy
+      openshift.io/deployment-config.latest-version: "5"
+      openshift.io/deployment-config.name: keycloak3
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: ""
+      openshift.io/deployment.status-reason: manual change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"keycloak3","namespace":"myproject","selfLink":"/apis/apps.openshift.io/v1/namespaces/myproject/deploymentconfigs/keycloak3","uid":"6d68388d-9d8c-11e9-a1e5-00155d2f2139","resourceVersion":"2627","generation":10,"creationTimestamp":"2019-07-03T12:16:46Z","labels":{"app":"keycloak3"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["keycloak3"],"from":{"kind":"ImageStreamTag","namespace":"myproject","name":"keycloak3:latest"},"lastTriggeredImage":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38"}},{"type":"ConfigChange"}],"replicas":1,"test":false,"selector":{"app":"keycloak3","deploymentconfig":"keycloak3"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"keycloak3","deploymentconfig":"keycloak3"},"annotations":{"openshift.io/generated-by":"OpenShiftWebConsole"}},"spec":{"containers":[{"name":"keycloak3","image":"jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38","ports":[{"containerPort":8080,"protocol":"TCP"}],"env":[{"name":"DB_VENDOR","value":"POSTGRES"},{"name":"DB_ADDR","value":"postgresql"},{"name":"DB_DATABASE","value":"keycloak-db"},{"name":"DB_SCHEMA","value":"public"},{"name":"DB_PASSWORD","value":"keycloak"},{"name":"KEYCLOAK_USER","value":"user"},{"name":"KEYCLOAK_PASSWORD","value":"password2"},{"name":"JGROUPS_DISCOVERY_PROTOCOL","value":"dns.DNS_PING"},{"name":"JGROUPS_DISCOVERY_PROPERTIES","value":"first.svc.cluster.local"},{"name":"DB_USER","value":"keycloak"}],"resources":{},"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"Always"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":5,"observedGeneration":9,"replicas":1,"updatedReplicas":1,"availableReplicas":1,"unavailableReplicas":0,"details":{"message":"manual change","causes":[{"type":"Manual"}]},"conditions":[{"type":"Available","status":"True","lastUpdateTime":"2019-07-03T12:24:22Z","lastTransitionTime":"2019-07-03T12:24:22Z","message":"Deployment config has minimum availability."},{"type":"Progressing","status":"True","lastUpdateTime":"2019-07-03T12:25:00Z","lastTransitionTime":"2019-07-03T12:24:59Z","reason":"NewReplicationControllerAvailable","message":"replication controller \"keycloak3-4\" successfully rolled out"}],"readyReplicas":1}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: keycloak3
+      openshift.io/deployment-config.name: keycloak3
+    name: keycloak3-5
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: keycloak3
+      uid: 6d68388d-9d8c-11e9-a1e5-00155d2f2139
+  spec:
+    replicas: 1
+    selector:
+      app: keycloak3
+      deployment: keycloak3-5
+      deploymentconfig: keycloak3
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "5"
+          openshift.io/deployment-config.name: keycloak3
+          openshift.io/deployment.name: keycloak3-5
+          openshift.io/generated-by: OpenShiftWebConsole
+        creationTimestamp: null
+        labels:
+          app: keycloak3
+          deployment: keycloak3-5
+          deploymentconfig: keycloak3
+      spec:
+        containers:
+        - env:
+          - name: DB_VENDOR
+            value: POSTGRES
+          - name: DB_ADDR
+            value: postgresql
+          - name: DB_DATABASE
+            value: keycloak-db
+          - name: DB_SCHEMA
+            value: public
+          - name: DB_PASSWORD
+            value: keycloak
+          - name: KEYCLOAK_USER
+            value: user
+          - name: KEYCLOAK_PASSWORD
+            value: password2
+          - name: JGROUPS_DISCOVERY_PROTOCOL
+            value: dns.DNS_PING
+          - name: JGROUPS_DISCOVERY_PROPERTIES
+            value: first.svc.cluster.local
+          - name: DB_USER
+            value: keycloak
+          image: jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38
+          imagePullPolicy: Always
+          name: keycloak3
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: ReplicationController
+  metadata:
+    annotations:
+      openshift.io/deployer-pod.name: postgresql-1-deploy
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: postgresql
+      openshift.io/deployment.phase: Complete
+      openshift.io/deployment.replicas: "1"
+      openshift.io/deployment.status-reason: image change
+      openshift.io/encoded-deployment-config: |
+        {"kind":"DeploymentConfig","apiVersion":"v1","metadata":{"name":"postgresql","namespace":"myproject","selfLink":"/apis/apps.openshift.io/v1/namespaces/myproject/deploymentconfigs/postgresql","uid":"c3d253eb-9d85-11e9-a1e5-00155d2f2139","resourceVersion":"1392","generation":2,"creationTimestamp":"2019-07-03T11:29:05Z","labels":{"app":"postgresql"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"strategy":{"type":"Rolling","rollingParams":{"updatePeriodSeconds":1,"intervalSeconds":1,"timeoutSeconds":600,"maxUnavailable":"25%","maxSurge":"25%"},"resources":{},"activeDeadlineSeconds":21600},"triggers":[{"type":"ConfigChange"},{"type":"ImageChange","imageChangeParams":{"automatic":true,"containerNames":["postgresql"],"from":{"kind":"ImageStreamTag","namespace":"openshift","name":"postgresql:9.5"},"lastTriggeredImage":"centos/postgresql-95-centos7@sha256:d459c9bb18ec7de443fbe4dd31cff26bdc6fdc681363922e97ae2f40e64a93c1"}}],"replicas":1,"test":false,"selector":{"app":"postgresql","deploymentconfig":"postgresql"},"template":{"metadata":{"creationTimestamp":null,"labels":{"app":"postgresql","deploymentconfig":"postgresql"},"annotations":{"openshift.io/generated-by":"OpenShiftNewApp"}},"spec":{"volumes":[{"name":"postgresql-volume-1","emptyDir":{}}],"containers":[{"name":"postgresql","image":"centos/postgresql-95-centos7@sha256:d459c9bb18ec7de443fbe4dd31cff26bdc6fdc681363922e97ae2f40e64a93c1","ports":[{"containerPort":5432,"protocol":"TCP"}],"env":[{"name":"POSTGRESQL_DATABASE","value":"keycloak-db"},{"name":"POSTGRESQL_PASSWORD","value":"keycloak"},{"name":"POSTGRESQL_USER","value":"keycloak"}],"resources":{},"volumeMounts":[{"name":"postgresql-volume-1","mountPath":"/var/lib/pgsql/data"}],"terminationMessagePath":"/dev/termination-log","terminationMessagePolicy":"File","imagePullPolicy":"IfNotPresent"}],"restartPolicy":"Always","terminationGracePeriodSeconds":30,"dnsPolicy":"ClusterFirst","securityContext":{},"schedulerName":"default-scheduler"}}},"status":{"latestVersion":1,"observedGeneration":1,"replicas":0,"updatedReplicas":0,"availableReplicas":0,"unavailableReplicas":0,"details":{"message":"image change","causes":[{"type":"ImageChange","imageTrigger":{"from":{"kind":"ImageStreamTag","namespace":"openshift","name":"postgresql:9.5"}}}]},"conditions":[{"type":"Available","status":"False","lastUpdateTime":"2019-07-03T11:29:05Z","lastTransitionTime":"2019-07-03T11:29:05Z","message":"Deployment config does not have minimum availability."}]}}
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: postgresql
+      openshift.io/deployment-config.name: postgresql
+    name: postgresql-1
+    ownerReferences:
+    - apiVersion: apps.openshift.io/v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: DeploymentConfig
+      name: postgresql
+      uid: c3d253eb-9d85-11e9-a1e5-00155d2f2139
+  spec:
+    replicas: 1
+    selector:
+      app: postgresql
+      deployment: postgresql-1
+      deploymentconfig: postgresql
+    template:
+      metadata:
+        annotations:
+          openshift.io/deployment-config.latest-version: "1"
+          openshift.io/deployment-config.name: postgresql
+          openshift.io/deployment.name: postgresql-1
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: postgresql
+          deployment: postgresql-1
+          deploymentconfig: postgresql
+      spec:
+        containers:
+        - env:
+          - name: POSTGRESQL_DATABASE
+            value: keycloak-db
+          - name: POSTGRESQL_PASSWORD
+            value: keycloak
+          - name: POSTGRESQL_USER
+            value: keycloak
+          image: centos/postgresql-95-centos7@sha256:d459c9bb18ec7de443fbe4dd31cff26bdc6fdc681363922e97ae2f40e64a93c1
+          imagePullPolicy: IfNotPresent
+          name: postgresql
+          ports:
+          - containerPort: 5432
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /var/lib/pgsql/data
+            name: postgresql-volume-1
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - emptyDir: {}
+          name: postgresql-volume-1
+  status:
+    replicas: 0
+- apiVersion: v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: null
+    name: keycloak
+  spec:
+    host: keycloak-myproject.10.0.75.2.nip.io
+    port:
+      targetPort: 8080-tcp
+    to:
+      kind: Service
+      name: keycloak
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: 2019-07-03T11:29:05Z
+        status: "True"
+        type: Admitted
+      host: keycloak-myproject.10.0.75.2.nip.io
+      routerName: router
+      wildcardPolicy: None
+- apiVersion: v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: null
+    name: keycloak2
+  spec:
+    host: keycloak2-myproject.10.0.75.2.nip.io
+    port:
+      targetPort: 8080-tcp
+    to:
+      kind: Service
+      name: keycloak2
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: 2019-07-03T11:46:29Z
+        status: "True"
+        type: Admitted
+      host: keycloak2-myproject.10.0.75.2.nip.io
+      routerName: router
+      wildcardPolicy: None
+- apiVersion: v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: null
+    name: keycloak3
+  spec:
+    host: keycloak3-myproject.10.0.75.2.nip.io
+    port:
+      targetPort: 8080-tcp
+    to:
+      kind: Service
+      name: keycloak3
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: 2019-07-03T12:27:18Z
+        status: "True"
+        type: Admitted
+      host: keycloak3-myproject.10.0.75.2.nip.io
+      routerName: router
+      wildcardPolicy: None
+- apiVersion: v1
+  kind: Route
+  metadata:
+    annotations:
+      openshift.io/host.generated: "true"
+    creationTimestamp: null
+    name: postgres
+  spec:
+    host: postgres-myproject.10.0.75.2.nip.io
+    port:
+      targetPort: 5432-tcp
+    to:
+      kind: Service
+      name: postgresql
+      weight: 100
+    wildcardPolicy: None
+  status:
+    ingress:
+    - conditions:
+      - lastTransitionTime: 2019-07-03T11:29:05Z
+        status: "True"
+        type: Admitted
+      host: postgres-myproject.10.0.75.2.nip.io
+      routerName: router
+      wildcardPolicy: None
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftWebConsole
+    creationTimestamp: null
+    labels:
+      app: keycloak
+    name: keycloak
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: keycloak
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftWebConsole
+    creationTimestamp: null
+    labels:
+      app: keycloak2
+    name: keycloak2
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: keycloak2
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftWebConsole
+    creationTimestamp: null
+    labels:
+      app: keycloak3
+    name: keycloak3
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: keycloak3
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: postgresql
+    name: postgresql
+  spec:
+    ports:
+    - name: 5432-tcp
+      port: 5432
+      protocol: TCP
+      targetPort: 5432
+    selector:
+      app: postgresql
+      deploymentconfig: postgresql
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubernetes.io/created-by: |
+        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"myproject","name":"keycloak2-2","uid":"f5588e98-9d8a-11e9-a1e5-00155d2f2139","apiVersion":"v1","resourceVersion":"2006"}}
+      openshift.io/deployment-config.latest-version: "2"
+      openshift.io/deployment-config.name: keycloak2
+      openshift.io/deployment.name: keycloak2-2
+      openshift.io/generated-by: OpenShiftWebConsole
+      openshift.io/scc: restricted
+    creationTimestamp: null
+    generateName: keycloak2-2-
+    labels:
+      app: keycloak2
+      deployment: keycloak2-2
+      deploymentconfig: keycloak2
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicationController
+      name: keycloak2-2
+      uid: f5588e98-9d8a-11e9-a1e5-00155d2f2139
+  spec:
+    containers:
+    - env:
+      - name: DB_VENDOR
+        value: POSTGRES
+      - name: DB_ADDR
+        value: postgresql
+      - name: DB_DATABASE
+        value: keycloak-db
+      - name: DB_USER
+        value: keycloak
+      - name: DB_SCHEMA
+        value: public
+      - name: DB_PASSWORD
+        value: keycloak
+      - name: KEYCLOAK_USER
+        value: user
+      - name: KEYCLOAK_PASSWORD
+        value: password
+      - name: JGROUPS_DISCOVERY_PROTOCOL
+        value: dns.DNS_PING
+      - name: JGROUPS_DISCOVERY_PROPERTIES
+        value: first.svc.cluster.local
+      image: jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38
+      imagePullPolicy: Always
+      name: keycloak2
+      ports:
+      - containerPort: 8080
+        protocol: TCP
+      resources: {}
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+          - SYS_CHROOT
+        privileged: false
+        runAsUser: 1000050000
+        seLinuxOptions:
+          level: s0:c7,c4
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: default-token-k5v9r
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: default-dockercfg-gs3v8
+    nodeName: localhost
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      fsGroup: 1000050000
+      seLinuxOptions:
+        level: s0:c7,c4
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    volumes:
+    - name: default-token-k5v9r
+      secret:
+        defaultMode: 420
+        secretName: default-token-k5v9r
+  status:
+    phase: Pending
+    qosClass: BestEffort
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubernetes.io/created-by: |
+        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"myproject","name":"keycloak3-5","uid":"dba8da9c-9d8d-11e9-a1e5-00155d2f2139","apiVersion":"v1","resourceVersion":"2645"}}
+      openshift.io/deployment-config.latest-version: "5"
+      openshift.io/deployment-config.name: keycloak3
+      openshift.io/deployment.name: keycloak3-5
+      openshift.io/generated-by: OpenShiftWebConsole
+      openshift.io/scc: restricted
+    creationTimestamp: null
+    generateName: keycloak3-5-
+    labels:
+      app: keycloak3
+      deployment: keycloak3-5
+      deploymentconfig: keycloak3
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicationController
+      name: keycloak3-5
+      uid: dba8da9c-9d8d-11e9-a1e5-00155d2f2139
+  spec:
+    containers:
+    - env:
+      - name: DB_VENDOR
+        value: POSTGRES
+      - name: DB_ADDR
+        value: postgresql
+      - name: DB_DATABASE
+        value: keycloak-db
+      - name: DB_SCHEMA
+        value: public
+      - name: DB_PASSWORD
+        value: keycloak
+      - name: KEYCLOAK_USER
+        value: user
+      - name: KEYCLOAK_PASSWORD
+        value: password2
+      - name: JGROUPS_DISCOVERY_PROTOCOL
+        value: dns.DNS_PING
+      - name: JGROUPS_DISCOVERY_PROPERTIES
+        value: first.svc.cluster.local
+      - name: DB_USER
+        value: keycloak
+      image: jboss/keycloak@sha256:1d0963135de4e2757ea4c9bc96b81e80a07e1b4dc14ea1ffaa8674fb4378aa38
+      imagePullPolicy: Always
+      name: keycloak3
+      ports:
+      - containerPort: 8080
+        protocol: TCP
+      resources: {}
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+          - SYS_CHROOT
+        privileged: false
+        runAsUser: 1000050000
+        seLinuxOptions:
+          level: s0:c7,c4
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: default-token-k5v9r
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: default-dockercfg-gs3v8
+    nodeName: localhost
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      fsGroup: 1000050000
+      seLinuxOptions:
+        level: s0:c7,c4
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    volumes:
+    - name: default-token-k5v9r
+      secret:
+        defaultMode: 420
+        secretName: default-token-k5v9r
+  status:
+    phase: Pending
+    qosClass: BestEffort
+- apiVersion: v1
+  kind: Pod
+  metadata:
+    annotations:
+      kubernetes.io/created-by: |
+        {"kind":"SerializedReference","apiVersion":"v1","reference":{"kind":"ReplicationController","namespace":"myproject","name":"postgresql-1","uid":"c40792d6-9d85-11e9-a1e5-00155d2f2139","apiVersion":"v1","resourceVersion":"1434"}}
+      openshift.io/deployment-config.latest-version: "1"
+      openshift.io/deployment-config.name: postgresql
+      openshift.io/deployment.name: postgresql-1
+      openshift.io/generated-by: OpenShiftNewApp
+      openshift.io/scc: restricted
+    creationTimestamp: null
+    generateName: postgresql-1-
+    labels:
+      app: postgresql
+      deployment: postgresql-1
+      deploymentconfig: postgresql
+    ownerReferences:
+    - apiVersion: v1
+      blockOwnerDeletion: true
+      controller: true
+      kind: ReplicationController
+      name: postgresql-1
+      uid: c40792d6-9d85-11e9-a1e5-00155d2f2139
+  spec:
+    containers:
+    - env:
+      - name: POSTGRESQL_DATABASE
+        value: keycloak-db
+      - name: POSTGRESQL_PASSWORD
+        value: keycloak
+      - name: POSTGRESQL_USER
+        value: keycloak
+      image: centos/postgresql-95-centos7@sha256:d459c9bb18ec7de443fbe4dd31cff26bdc6fdc681363922e97ae2f40e64a93c1
+      imagePullPolicy: IfNotPresent
+      name: postgresql
+      ports:
+      - containerPort: 5432
+        protocol: TCP
+      resources: {}
+      securityContext:
+        capabilities:
+          drop:
+          - KILL
+          - MKNOD
+          - SETGID
+          - SETUID
+          - SYS_CHROOT
+        privileged: false
+        runAsUser: 1000050000
+        seLinuxOptions:
+          level: s0:c7,c4
+      terminationMessagePath: /dev/termination-log
+      terminationMessagePolicy: File
+      volumeMounts:
+      - mountPath: /var/lib/pgsql/data
+        name: postgresql-volume-1
+      - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+        name: default-token-k5v9r
+        readOnly: true
+    dnsPolicy: ClusterFirst
+    imagePullSecrets:
+    - name: default-dockercfg-gs3v8
+    nodeName: localhost
+    restartPolicy: Always
+    schedulerName: default-scheduler
+    securityContext:
+      fsGroup: 1000050000
+      seLinuxOptions:
+        level: s0:c7,c4
+    serviceAccount: default
+    serviceAccountName: default
+    terminationGracePeriodSeconds: 30
+    volumes:
+    - emptyDir: {}
+      name: postgresql-volume-1
+    - name: default-token-k5v9r
+      secret:
+        defaultMode: 420
+        secretName: default-token-k5v9r
+  status:
+    phase: Pending
+    qosClass: BestEffort

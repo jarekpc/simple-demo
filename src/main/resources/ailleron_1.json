@@ -5,7 +5,7 @@
         "name": "keycloak-ailleron1",
         "annotations": {
             "iconClass": "icon-sso",
-            "tags": "keycloak1",
+            "tags": "keycloak12",
             "version": "6.0.1 ",
             "openshift.io/display-name": "Keycloak1",
             "description": "An example Keycloak server with HTTPS"
@@ -234,7 +234,27 @@
                                         "value": "${DB_VENDOR}"
                                     },
                                     {
-                                        "name": "JGROUPS_DISCOVERY_PROTOCOL", 
+                                        "name": "DB_ADDR",
+                                        "value": "127.0.0.1"
+                                    },
+                                    {
+                                        "name": "DB_PORT",
+                                        "value": "5432"
+                                    },
+                                    {
+                                        "name": "DB_DATABASE",
+                                        "value": "keycloak-db"
+                                    },
+                                    {
+                                        "name": "DB_USER",
+                                        "value": "keycloak"
+                                    },
+                                    {
+                                        "name": "DB_PASSWORD",
+                                        "value": "keycloak"
+                                    },
+                                    {
+                                        "name": "JGROUPS_DISCOVERY_PROTOCOL",
                                         "value": "dns.DNS_PING"
                                     },
                                     {

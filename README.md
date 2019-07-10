@@ -2,10 +2,7 @@ OpenShift + jenkins konfiguracja:
 
 stworzenie instancji jenkins'a:
 
- oc new-app jenkins-ephemeral \
-    -p NAMESPACE=ci \
-    -p JENKINS_IMAGE_STREAM_TAG=jenkins:latest \
-    -p MEMORY_LIMIT=2Gi
+ oc new-app jenkins-ephemeral -p NAMESPACE=ci -p JENKINS_IMAGE_STREAM_TAG=jenkins:latest -p MEMORY_LIMIT=2Gi
 
 
 ustawienie webhook dla repo (na githubie w settings -> klikasz adres swojego jenkinsa  ustawiasz hasło - musi

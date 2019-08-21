@@ -49,6 +49,7 @@ pipeline {
                                       cp -rfv ./target/*.\$t oc-build/deployments/ 2> /dev/null || echo "No \$t files"
                                     done
                                   """
+                                  echo "Starting Pipeline for ${APP_NAME}... build ${env.BUILD} "
                                   binaryBuild(projectName: env.BUILD, buildConfigName: env.APP_NAME, artifactsDirectoryName: "oc-build")
                                 }
                               }

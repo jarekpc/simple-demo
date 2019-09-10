@@ -50,7 +50,7 @@ pipeline {
                                     done
                                   """
                                   echo "Starting Pipeline for ${APP_NAME}... build ${env.BUILD} "
-                                  binaryBuild(projectName: env.BUILD, buildConfigName: env.APP_NAME, artifactsDirectoryName: "oc-build")
+                                  binaryBuild(projectName: env.BUILD, buildConfigName: env.APP_NAME, artifactsDirectoryName: "target")
                                 }
                               }
 
